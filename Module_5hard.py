@@ -1,25 +1,59 @@
 import time
 
 
+class User:
+    def __init__(self, nickname, age, password):
+        self.nickname = nickname
+        self.age = age
+        self.password = hash(password)
+
+    def __str__(self):
+        return self.nickname
+
+    def __repr__(self):
+        return self.nickname
+
+    def __eq__(self, other):
+        return self.nickname == other.nickname
+
+    def get_info(self):
+        return self.nickname, self.password
+
+
+class Video:
+    def __init__(self, title, duration, adult_mode=False):
+        self.title = title
+        self.duration = duration
+        self.time_now = 0
+        self.adult_mode = adult_mode
+
+
+    def __str__(self):
+        return self.title
+
+    def __repr__(self):
+        return self.title
+
+
 class UrTube:
     def __init__(self):
         self.users = []
         self.videos = []
         self.current_user = None
 
-    def log_in( self, nickname, password):
-        self.nickname = nickname
-        self.password = password
-        if nickname in self.users and hash(password) in self.users:
-            self.current_user = nickname
-        else:
-            print('Токого пользователя не существует.')
+    def log_in(self, nickname, password):
+        for user in self.users:
+            if (nickname, hash(password)) == user.get_info():
+                self.current_user = user
+                return user
+
     def register(self, nickname, password, age):
-        self.age = age
-        if nickname in self.users:
-            print(f'Пользователь {nickname} уже существует.')
+        new_user = User(nickname, hash(password), age)
+        if new_user not in self.users:
+            self.users.append(new_user)
+            self.current_user = new_user
         else:
-            self.users.append(nickname)
+            print(f'Пользователь {nickname} уже существует')
 
     def log_out(self):
         self.current_user = None
@@ -27,19 +61,16 @@ class UrTube:
 
     def add(self, *other):
         for i in other:
-            if other not in self.videos:
+            if i.title not in self.videos:
                 self.videos.append(i)
 
     def get_videos(self, other):
-        self.other = other
         list1 = []
         for i in self.videos:
             if other.lower() in i.title.lower():
                 list1.append(i)
-            else:
-                print('не чего не найдено')
-            return i
-    
+
+        return list1
 
     def watch_video(self, title):
         if self.current_user is None:
@@ -54,34 +85,14 @@ class UrTube:
                         time.sleep(1)
                     video.time_now = 0
                     print('Конец видео')
+                else:
+                    print('Вам нет 18 лет, пожалуйста покиньте страницу')
+                break
 
 
 
 
 
-
-class Video:
-
-
-    def __init__(self, title, duration, adult_mode=False):
-        self.title = title
-        self.duration = duration
-        self.time_now = 0
-        self.adult_mode = adult_mode
-
-
-    def __str__(self):
-        return self.title
-
-    def __repr__(self):
-        return self.title
-
-class User:
-
-    def __init__(self, nickname, age, password):
-        self.nickname = nickname
-        self.age = age
-        self.password = password
 
 ur = UrTube()
 v1 = Video('Лучший язык программирования 2024 года', 200)
@@ -107,7 +118,3 @@ print(ur.current_user)
 
 # Попытка воспроизведения несуществующего видео
 ur.watch_video('Лучший язык программирования 2024 года!')
-
-
-
-
